@@ -1,0 +1,4 @@
+common1依赖common2， 而common2里面又依赖common1,他们的执行是怎么样的？
+
+由于commomJS的同步加载的特点， 当加载到common2时， 会同步加载common2，直到其加载完毕，而此时common2里面又依赖了common1，此时在common2
+里面能得到的commo1的部分， 也就是只能引入发生循环依赖之前的这部分。

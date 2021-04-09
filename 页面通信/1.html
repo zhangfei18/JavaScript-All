@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1.html</title>
+</head>
+
+<body>
+    <script>
+        navigator.serviceWorker.register("./sw.js").then((ret) => {
+            console.log("注册成功", ret)
+        });
+        navigator.serviceWorker.addEventListener("message", function(e) {
+            const data = e.data;
+            const text = '[receive]' + data.msg + "- tab" + data.form;
+            console.log("[页面1] 接收到 message:", text)
+        })
+        window.addEventListener("storage", (e) => {
+            console.log(e, 'StorageEvent1---')
+        })
+    </script>
+</body>
+
+</html>

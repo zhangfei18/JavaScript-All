@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promise-all</title>
+</head>
+
+<body>
+    <script>
+        function getch(time) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(time);
+                }, time)
+            })
+        };
+        Promise._all = function (pArr) {
+            return new Promise((resolve) => {
+                let len = pArr.length;
+                let ret = [];
+                let count = 0;
+                for (let i = 0; i < len; i++) {
+                    (pArr[i] instanceof Promise ? pArr[i] : Promise.resolve(pArr[i])).then((res) => {
+                        ret[i] = res;
+                        count++;
+                        if (count === len) resolve(ret);
+                    })
+                }
+            });
+        };
+        Promise._all([getch(2000), getch(1000), getch(3000), getch(100)]).then((ret) => {
+            console.log(ret, '_all')
+        })
+        // _race
+        Promise._race = function (pArr) {
+            return new Promise((resolve) => {
+                let len = pArr.length;
+                for (let i = 0; i < len; i++) {
+                    (pArr[i] instanceof Promise ? pArr[i] : Promise.resolve(pArr[i])).then((res) => {
+                        res;
+                        resolve(res);
+                    })
+                }
+            });
+        };
+        Promise._race([getch(2000), getch(1000), getch(3000), getch(100)]).then((ret) => {
+            console.log(ret, '_race')
+        })
+    </script>
+</body>
+
+</html>

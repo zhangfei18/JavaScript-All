@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const urls = [
+            {
+                info: "图片1",
+                time: 2000,
+            },
+            {
+                info: "图片2",
+                time: 1000,
+            },
+            {
+                info: "图片3",
+                time: 3000,
+            },
+            {
+                info: "图片4",
+                time: 1000,
+            },
+            {
+                info: "图片5",
+                time: 2000,
+            },
+            {
+                info: "图片6",
+                time: 4000,
+            },
+            {
+                info: "图片7",
+                time: 3000,
+            },
+            {
+                info: "图片8",
+                time: 1000,
+            },
+            {
+                info: "图片9",
+                time: 2000,
+            },
+            {
+                info: "图片10",
+                time: 4000,
+            },
+        ];
+        function limitLoad(urls, handler, max) {
+            let copy = [].concat([...urls]);   
+            promises = copy.splice(0, max).map((url, index) => {
+                return handler(url).then(() => {
+                    return index;
+                });
+            });
+            let p = Promise.race(promises);
+            for (let i = 0; i < copy.length; i++) {
+                p = p.then((index) => {
+                    promises[index] = handler(copy[i]).then(() => {
+                        return index;
+                    });
+                    return Promise.race(promises);
+                });
+             }
+            // 经过上面的for循环之后，会给p后面绑定很多个.then, 这里一开始的时候会疑惑，为什么可以
+            // 给这么多个p循环赋值， 因为它是Promise的实例啊！！！
+        }
+        // 处理请求的方法
+        function resolve(url) {
+            return new Promise((resolve, reject) => {
+                console.log("---" + url.info + "start!");
+                setTimeout(() => {
+                    resolve();
+                    console.log(url.info + "ok!!!");
+                }, url.time);
+            });
+        }
+        limitLoad(urls, resolve, 3);
+    </script>
+</body>
+
+</html>

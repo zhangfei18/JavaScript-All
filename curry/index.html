@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curry</title>
+</head>
+
+<body>
+    <script>
+        // 第一种实现方式
+        function curry(fn) {
+            return function curried(...args) {
+                if (args.length < fn.length) {
+                    // 函数包装
+                    return function () {
+                        return curried(...args.concat([...arguments]));// 尾递归优化
+                    }
+                } else {
+                    return fn.apply(this, args);
+                }
+            }
+        }
+        function add(a, b, c) {
+            return a + b + c;
+        }
+        let c1 = curry(add);
+        let c2 = curry(add);
+        let c3 = curry(add);
+        console.log(c1(1))
+        console.log(c2(1, 2))
+        console.log(c3(1, 2, 3))
+        // 第二种实现方式
+        function _curry(fn) {
+            let args = [];
+            return function curried() {
+                args.concat([...arguments]);
+                if (args.length < fn.length) {
+                    return curried;
+                } else {
+                    return fn.apply(this, args);
+                }
+            }
+        }
+        let c4 = curry(add);
+        let c5 = curry(add);
+        let c6 = curry(add);
+        console.log(c4(1))
+        console.log(c5(1, 2))
+        console.log(c6(1, 2, 3))
+
+        // 实战
+        // 非柯理化版本
+        function checkByRegExp(regExp, string) {
+            return regExp.test(string);
+        }
+        console.log(checkByRegExp(/^1\d{10}$/, '19933459999'))
+        console.log(checkByRegExp(/^(\w)+(\.\w+)*@(\w)+(\.\w+)+$$/, 'test@163.com'))
+
+
+        // 柯理化版本
+        let _check = curry(checkByRegExp);
+        let checkPhone = _check(/^1\d{10}$/);
+        let checkEmail = _check(/^(\w)+(\.\w+)*@(\w)+(\.\w+)+$$/);
+        console.log(checkPhone('19999999999'))
+        console.log(checkPhone('18888888888'))
+        console.log(checkEmail("zf88888888@163.com"))
+        console.log(checkEmail("20205050@qq.com"))
+
+
+
+
+    </script>
+</body>
+
+</html>

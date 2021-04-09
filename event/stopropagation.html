@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>stopPropagation</title>
+    <style>
+        .parent{
+            width: 200px;
+            height: 200px;
+            background-color: #f90;
+        }
+        .son{
+            width: 150px;
+            height: 150px;
+            background-color: #f09;
+        }
+        .g_son{
+            width: 100px;
+            height: 100px;
+            background-color: #90f;
+        }
+    </style>
+</head>
+<body>
+    <div class="parent">
+        parent
+        <div class="son">
+            son
+            <div class="g_son">g_son</div>
+        </div>
+    </div>
+    <script>
+        // stopPropagation: 如果addEventListener第三个参数是false（默认），那么阻止的就是冒泡的执行，
+        //                  如果第三个参数是true， 那么阻止的就是捕获阶段的执行。
+        let parent = document.querySelector(".parent");
+        let son = document.querySelector(".son");
+        let g_son = document.querySelector(".g_son");
+
+        window.addEventListener("click", (e)=>{
+            e.stopPropagation();
+
+            console.log("阻止传播")
+        }, true)
+        parent.addEventListener("click", (e)=>{
+            console.log("parent")
+        })
+        son.addEventListener("click", (e)=>{
+
+            console.log("son")
+        })
+        g_son.addEventListener("click", (e)=>{
+            console.log("g_son")
+        })
+        /**
+         * 实例：一个历史页面， 上面有若干个点击逻辑， 每个按钮都有自己的click事件。
+         * 给每一个访问的用户添加了一个属性， banned = true, 此用户点击页面上的任何按钮或者元素， 都不可响应原来的函数， 而是直接alert提示，你被封禁了！
+         * 
+         * window.addEventLister('click', (e)=>{
+         *  e.stopPropagation();
+         * }, true)//在捕获阶段直接组织所有的事件
+         * */ 
+    </script>
+</body>
+</html>

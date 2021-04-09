@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbol</title>
+</head>
+
+<body>
+    <script>
+        // 背景： 为了解决ES5对象合并时属性名字的冲突、第七种数据类型
+        // 注意： 不能使用 new 
+        // 1.Symbol.prototype.description
+        const sym = Symbol('zf');//Symbol(zf)
+        console.log(String(sym));//zf
+        console.log(sym.description)
+
+        // 2.使用 Symbol 值定义属性时，Symbol 值必须放在方括号之中。
+        let obj = {};
+        let mySymbol = Symbol("name");
+        obj.mySymbol = 'zf';
+        console.log(obj.mySymbol)//zf
+        console.log(obj[mySymbol])//undefined
+
+        obj[mySymbol] = 'mj';
+        console.log(obj.mySymbol)//zf
+        console.log(obj[mySymbol])//mj
+
+        // 3.消除魔术字符串
+
+        // 4.Object.getOwnPropertySymbols();
+        let obj2 = {};
+        obj2.name = 'zf'
+        obj2.age = 23;
+        obj2[Symbol('foo')] = 'foo';
+        console.log(Object.getOwnPropertyNames(obj2))
+        console.log(Object.getOwnPropertySymbols(obj2))
+        console.log(Object.keys(obj2));
+        console.log(Reflect.ownKeys(obj2));//全部获取到了
+
+        // 5.Symbol.for() 拥有登记机制
+        // 使用时会先去全局查找，有：返回找到的这个值， 无： 新建
+        let s1 = Symbol.for("foo");
+        let s2 = Symbol.for("foo");
+        console.log('Symbol.for是否相同', s1 === s2);
+        // 6. 模块的Singleton模式
+        // 单例模式是指：调用一个类，任何时候返回的都是同一个实例。
+
+        // 7.内置的Symbol值 
+        //  [Symbol.hasInstance] 实例
+        //  [Symbol.isConcatSpreadable] 对象用于Array.prototype.concat时，是否可展开。 默认undefined 可以展开， false时不能展开
+
+        class A1 extends Array {
+            constructor(args) {
+                super(args);
+                this[Symbol.isConcatSpreadable] = true;
+            }
+        }
+        class A2 extends Array {
+            constructor(args) {
+                super(args);
+                this[Symbol.isConcatSpreadable] = false;
+            }
+        }
+        let a1 = new A1();
+        a1[0] = 1
+        a1[1] = 2
+        let a2 = new A2()
+        a2[0] = 1
+        a2[1] = 2
+        console.log('展开',[].concat(a1).concat(a2))//[1, 2, [3,4]]
+        
+        // [Symbol.iterator] for...for
+
+        // [Symbol.toPrimitive]
+        let obj3 = {
+            [Symbol.toPrimitive](hint){
+                switch (hint) {
+                    case 'default':
+                        console.log('default')
+                        return 'default'
+                        break;
+                    case 'number':
+                        console.log('number')
+                        return 123;
+                        break;
+                    case 'string':
+                        console.log('string')
+                        return 'string'
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        console.log(2 + obj3)
+        console.log(2 - obj3)
+        console.log(2 * obj3)
+        console.log(2 == obj3)
+    </script>
+</body>
+
+</html>

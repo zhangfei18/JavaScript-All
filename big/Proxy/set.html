@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy-set</title>
+</head>
+
+<body>
+    <script>
+        // ·数据验证
+        // ·进制某些属性被外部访问或操作
+        // const handler = {
+        //     get(target, propKey){
+        //         invariant(propKey, 'get');
+        //         return target[propKey]
+        //     },
+        //     set(target, propKey, value){
+        //         invariant(propKey, 'set');
+        //         target[propKey] = value
+        //     }
+        // }
+        // function invariant(key, action){
+        //     if(key.startsWith('_')){
+        //         throw new Error(`Invalid attempt to ${action} private "${key}" property`);
+        //     }
+        // }
+        // let target = {};
+        // let proxy = new Proxy(target, handler);
+        // console.log(proxy.name) // undefined
+        // console.log(proxy._name)// 报错
+        // ·设置自己
+        // let handler = {
+        //     set(target, property, value, receiver) {
+        //         target[property] = receiver;
+        //     }
+        // }
+        // let proxy = new Proxy({}, handler);
+        // let son = {};
+        // Object.setPrototypeOf(son, proxy);
+        // son.name = 'zf';
+        // console.log(son.name)
+        // console.log(son.name === son)// 结果是给son的name属性设置了son
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // 重写XMLHttpRequest, 可以插入我们自己的钩子函数
+        class XhrHook {
+            constructor(beforeHooks = {}, afterHooks = {}) {
+                // 保存
+                this.XHR = window.XMLHttpRequest;
+                this.beforeHooks = beforeHooks;
+                this.afterHooks = afterHooks;
+                this.init();
+            }
+            init() {
+                let _this = this;
+                window.XMLHttpRequest = function () {
+                    this._xhr = new _this.XHR();
+                    _this.overwrite(this);
+                }
+            }
+            overwrite(proxyXHR) {
+                // 遍历原生xhr对象上的属性和方法
+                for (let key in proxyXHR._xhr) {
+                    if (typeof proxyXHR._xhr[key] === 'function') {
+                        // 重写方法
+                        this.overwriteMethods(key, proxyXHR);
+                        continue;
+                    }
+                    // 重写属性
+                    this.overwriteAttributes(key, proxyXHR);
+                }
+            }
+            overwriteMethods(key, proxyXHR) {//proxyXHR: 是用户拿到的new我们改写之后的xhr的实例
+                let beforeHooks = this.beforeHooks;//拦截原有行为
+                let afterHooks = this.afterHooks;
+                // 给原生有的方法包装上一层函数（包装函数---常用的编程技巧Promise里面使用了这种技巧）
+                proxyXHR[key] = (...args) => {
+                    if (beforeHooks[key]) {
+                        // 调用before钩子
+                        const res = beforeHooks[key].call(proxyXHR, ...args);
+                        if (res === false) {
+                            return;
+                        }
+                    }
+                    // 调用原生的方法
+                    const res = proxyXHR._xhr[key].apply(proxyXHR._xhr, args);
+                    // 调用after钩子, 并把原生方法的结果传递进去
+                    afterHooks[key] && afterHooks[key].call(proxyXHR._xhr, res);
+                    return res;
+                }
+            }
+            overwriteAttributes(key, proxyXHR) {
+                // 设置拦截器， 当用户取属性的时候，实际上是从原生的xhr对象上取
+                Object.defineProperty(proxyXHR, key, this.setPropertyDescriptor(key, proxyXHR));
+            }
+            setPropertyDescriptor(key, proxyXHR) {
+                let obj = Object.create(null);
+                let _this = this;
+                obj.set = function (val) {
+                    // 如果不是以on开头的属性直接写在我们的实例上
+                    if (!key.startsWith('on')) {
+                        proxyXHR['_' + key] = val;
+                        return;
+                    }
+                    if (_this.beforeHooks[key]) {
+                        this._xhr[key] = function (...args) {
+                            _this.beforeHooks[key].call(proxyXHR);
+                            val.apply(proxyXHR, args);
+                        }
+                        return
+                    }
+                    // 以on开头的属性直接写在原生的对象上面
+                    this._xhr[key] = val;
+                }
+                obj.get = function () {
+                    return proxyXHR['_' + key] || this._xhr[key]
+                }
+                return obj;
+            }
+        }
+    </script>
+</body>
+
+</html>

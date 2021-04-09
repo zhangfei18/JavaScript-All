@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>allSettled</title>
+</head>
+
+<body>
+    <script>
+        // allSettled: 当我们不关心异步操作的结果，只关心这些操作有没有结束时，此时这个方法就很有用
+        function request(ms) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (String(ms).slice(0, 1) % 2 === 0) {
+                        resolve(ms)
+                    } else {
+                        reject(ms)
+                    }
+                }, ms)
+            })
+        }
+        // let p = Promise.allSettled([request(1000), request(2000), request(3000)]);
+        // let p = Promise.any([request(1000), request(5000), request(3000)]);
+        // console.log(p)
+        // p.then((ret) => {
+        //     console.log(ret)
+        //     let copyRet = ret.filter((p) => {
+        //         return p.status === "fulfilled";
+        //     })
+        //     console.log(copyRet)
+        // }).catch(error => console.log(error))
+
+        // Promise.any([Promise.reject(1), Promise.reject(2), Promise.reject(3)]).then((ret) => {
+        //     console.log(ret)
+        // }).catch((err) => {
+        //     console.log(err)
+        // })
+
+
+        // DIY
+        Promise._allSettled = function(pros) {
+            let count = 0;
+            let result = [];
+            return new Promise((resolve, reject) => {
+                for (let i = 0; i < pros.length; i++) {
+                    let pro = pros[i];
+                    if (pro instanceof Promise) {
+                        pro.then((ret) => {
+                            console.log('then')
+                            count++;
+                            result[i] = {
+                                status: 'fulfilled',
+                                value: ret
+                            }
+                            count === pros.length ? resolve(result) : null;
+                        }).catch(err => {
+                            console.log('catch')
+                            count++;
+                            result[i] = {
+                                status: 'rejected',
+                                reason: err
+                            }
+                            count === pros.length ? resolve(result) : null;
+                        })
+                    }
+
+
+                }
+            })
+        }
+        let p = Promise._allSettled([request(1000), request(2000), request(3000)]);
+        p.then((ret) => {
+            console.log(ret)
+            let copyRet = ret.filter((p) => {
+                return p.status === "fulfilled";
+            })
+            console.log(copyRet)
+        }).catch(error => console.log(error))
+    </script>
+</body>
+
+</html>
